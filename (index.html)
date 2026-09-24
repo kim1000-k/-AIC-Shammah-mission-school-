@@ -1,0 +1,778 @@
+Yes. Since you want the online version, let's start with the main portal file. This is a complete working front-end that you can put into index.html. It includes teacher/admin login screens, student/results entry, and the SHAMMAH branding. The actual shared online database will be connected in the next step.
+
+Copy everything below into index.html:
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHAMMAH MISSION PORTAL</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f2f5f8;
+    color:#17202a;
+}
+header{
+    background:#123c69;
+    color:white;
+    padding:18px;
+    text-align:center;
+}
+header h1{margin:0;font-size:25px}
+header p{margin:5px 0 0}
+
+.container{
+    max-width:1100px;
+    margin:25px auto;
+    padding:15px;
+}
+
+.card{
+    background:white;
+    border-radius:12px;
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:0 3px 12px rgba(0,0,0,.10);
+}
+
+.login{
+    max-width:450px;
+    margin:40px auto;
+}
+
+input,select,button{
+    width:100%;
+    padding:12px;
+    margin:7px 0;
+    border-radius:7px;
+    border:1px solid #bbb;
+    font-size:15px;
+}
+
+button{
+    background:#123c69;
+    color:white;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+}
+button:hover{opacity:.9}
+
+.secondary{background:#555}
+.success{background:#16803c}
+.danger{background:#b42318}
+
+.hidden{display:none}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:15px;
+}
+
+.stat{
+    background:#eef4fb;
+    padding:20px;
+    border-radius:10px;
+    text-align:center;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+th,td{
+    border:1px solid #ddd;
+    padding:9px;
+    text-align:left;
+}
+th{
+    background:#123c69;
+    color:white;
+}
+
+.nav{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:15px;
+}
+.nav button{width:auto}
+
+.message{
+    padding:12px;
+    background:#e9f7ef;
+    border-radius:7px;
+    margin:10px 0;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>SHAMMAH MISSION SCHOOL</h1>
+    <p>SHAMMAH MISSION PORTAL</p>
+    <small>Results Management System</small>
+</header>
+
+<!-- LOGIN -->
+<div id="loginPage" class="container">
+
+<div class="card login">
+<h2>🔐 Portal Login</h2>
+
+<select id="loginRole">
+    <option value="teacher">Teacher</option>
+    <option value="admin">Director of Studies / Admin</option>
+</select>
+
+<input id="username" placeholder="Username">
+
+<input id="password" type="password" placeholder="Password">
+
+<button onclick="login()">LOGIN</button>
+
+<div id="loginMessage"></div>
+
+<hr>
+
+<p><b>Demo accounts</b></p>
+<p>Admin: <b>admin</b> / <b>1234</b></p>
+<p>Teacher: <b>kim</b> / <b>1234</b></p>
+
+</div>
+</div>
+
+
+<!-- PORTAL -->
+<div id="portal" class="container hidden">
+
+<div class="card">
+
+<h2 id="welcome"></h2>
+
+<div class="nav">
+<button onclick="showSection('home')">Home</button>
+<button onclick="showSection('students')">Students</button>
+<button onclick="showSection('results')">Enter Results</button>
+<button onclick="showSection('reports')">Reports</button>
+<button onclick="logout()" class="danger">Logout</button>
+</div>
+
+</div>
+
+
+<!-- HOME -->
+<section id="home" class="section">
+
+<div class="card">
+<h2>Portal Overview</h2>
+
+<div class="grid">
+
+<div class="stat">
+<h3 id="studentCount">0</h3>
+<p>Students</p>
+</div>
+
+<div class="stat">
+<h3>Grade 7–9</h3>
+<p>Classes</p>
+</div>
+
+<div class="stat">
+<h3>3</h3>
+<p>Terms</p>
+</div>
+
+<div class="stat">
+<h3 id="resultCount">0</h3>
+<p>Results Entered</p>
+</div>
+
+</div>
+</div>
+
+<div class="card">
+<h3>Current Academic Year</h3>
+
+<select id="year">
+<option>2026</option>
+<option>2027</option>
+<option>2028</option>
+</select>
+
+<select id="term">
+<option>Term 1</option>
+<option>Term 2</option>
+<option>Term 3</option>
+</select>
+
+<button onclick="saveSettings()">Save Academic Settings</button>
+
+<div id="settingsMessage"></div>
+
+</div>
+
+</section>
+
+
+<!-- STUDENTS -->
+<section id="students" class="section hidden">
+
+<div class="card">
+
+<h2>Student Management</h2>
+
+<div class="grid">
+
+<input id="adm" placeholder="Admission Number">
+
+<input id="studentName" placeholder="Student Name">
+
+<select id="gender">
+<option>Male</option>
+<option>Female</option>
+</select>
+
+<select id="className">
+<option>Grade 7</option>
+<option>Grade 8</option>
+<option>Grade 9</option>
+</select>
+
+<input id="parentPhone" placeholder="Parent / Guardian Phone">
+
+</div>
+
+<button onclick="addStudent()">Add Student</button>
+
+<div id="studentMessage"></div>
+
+</div>
+
+<div class="card">
+
+<h3>Student List</h3>
+
+<table>
+
+<thead>
+<tr>
+<th>Admission</th>
+<th>Name</th>
+<th>Gender</th>
+<th>Grade</th>
+<th>Parent Phone</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="studentTable"></tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+<!-- RESULTS -->
+<section id="results" class="section hidden">
+
+<div class="card">
+
+<h2>Results Entry</h2>
+
+<div class="grid">
+
+<select id="resultStudent"></select>
+
+<select id="resultSubject">
+
+<option>Agriculture</option>
+<option>Integrated Science</option>
+<option>Mathematics</option>
+<option>English</option>
+<option>Kiswahili</option>
+<option>SST</option>
+<option>CRE</option>
+<option>Pre/Technical</option>
+<option>C/A</option>
+
+</select>
+
+<input id="mark" type="number" min="0" max="100"
+placeholder="Marks 0 - 100">
+
+</div>
+
+<button onclick="saveResult()">Save Result</button>
+
+<div id="resultMessage"></div>
+
+</div>
+
+<div class="card">
+
+<h3>Entered Results</h3>
+
+<table>
+
+<thead>
+<tr>
+<th>Student</th>
+<th>Subject</th>
+<th>Marks</th>
+<th>Grade</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="resultsTable"></tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+<!-- REPORTS -->
+<section id="reports" class="section hidden">
+
+<div class="card">
+
+<h2>Reports & Analysis</h2>
+
+<button onclick="generateReport()">Generate Class Analysis</button>
+
+<div id="reportArea"></div>
+
+</div>
+
+</section>
+
+</div>
+
+
+<script>
+
+let students =
+JSON.parse(localStorage.getItem("shammah_students")) || [];
+
+let results =
+JSON.parse(localStorage.getItem("shammah_results")) || [];
+
+let currentUser = null;
+
+
+/* LOGIN */
+
+function login(){
+
+const role=document.getElementById("loginRole").value;
+const username=document.getElementById("username").value.trim();
+const password=document.getElementById("password").value;
+
+let valid=false;
+
+if(role==="admin" && username==="admin" && password==="1234"){
+valid=true;
+}
+
+if(role==="teacher" && username==="kim" && password==="1234"){
+valid=true;
+}
+
+if(!valid){
+
+document.getElementById("loginMessage").innerHTML=
+'<div style="color:#b42318">Invalid username or password.</div>';
+
+return;
+}
+
+currentUser={role,username};
+
+document.getElementById("loginPage").classList.add("hidden");
+document.getElementById("portal").classList.remove("hidden");
+
+document.getElementById("welcome").innerText=
+"Welcome, "+(role==="admin"?
+"Director of Studies":
+"Teacher "+username);
+
+loadAll();
+
+}
+
+
+/* LOGOUT */
+
+function logout(){
+
+currentUser=null;
+
+document.getElementById("portal").classList.add("hidden");
+document.getElementById("loginPage").classList.remove("hidden");
+
+document.getElementById("username").value="";
+document.getElementById("password").value="";
+
+}
+
+
+/* NAVIGATION */
+
+function showSection(id){
+
+document.querySelectorAll(".section").forEach(
+section=>section.classList.add("hidden")
+);
+
+document.getElementById(id).classList.remove("hidden");
+
+loadAll();
+
+}
+
+
+/* STUDENTS */
+
+function addStudent(){
+
+let adm=document.getElementById("adm").value.trim();
+let name=document.getElementById("studentName").value.trim();
+let gender=document.getElementById("gender").value;
+let grade=document.getElementById("className").value;
+let phone=document.getElementById("parentPhone").value.trim();
+
+if(!adm || !name){
+
+alert("Enter admission number and student name.");
+return;
+}
+
+if(students.some(s=>s.adm===adm)){
+
+alert("Admission number already exists.");
+return;
+}
+
+students.push({
+adm,
+name,
+gender,
+grade,
+phone
+});
+
+localStorage.setItem(
+"shammah_students",
+JSON.stringify(students)
+);
+
+document.getElementById("studentMessage").innerHTML=
+'<div class="message">Student saved successfully.</div>';
+
+document.getElementById("adm").value="";
+document.getElementById("studentName").value="";
+document.getElementById("parentPhone").value="";
+
+loadStudents();
+
+}
+
+
+/* DELETE STUDENT */
+
+function deleteStudent(adm){
+
+if(currentUser.role!=="admin"){
+
+alert("Only the Director of Studies can remove students.");
+return;
+
+}
+
+if(!confirm("Remove this student?")) return;
+
+students=students.filter(s=>s.adm!==adm);
+
+results=results.filter(r=>r.adm!==adm);
+
+localStorage.setItem(
+"shammah_students",
+JSON.stringify(students)
+);
+
+localStorage.setItem(
+"shammah_results",
+JSON.stringify(results)
+);
+
+loadAll();
+
+}
+
+
+/* LOAD STUDENTS */
+
+function loadStudents(){
+
+let table=document.getElementById("studentTable");
+
+table.innerHTML="";
+
+students.forEach(s=>{
+
+let row=document.createElement("tr");
+
+row.innerHTML=`
+
+<td>${s.adm}</td>
+<td>${s.name}</td>
+<td>${s.gender}</td>
+<td>${s.grade}</td>
+<td>${s.phone}</td>
+
+<td>
+<button class="danger"
+onclick="deleteStudent('${s.adm}')">
+Remove
+</button>
+</td>
+
+`;
+
+table.appendChild(row);
+
+});
+
+
+let select=document.getElementById("resultStudent");
+
+select.innerHTML="";
+
+students.forEach(s=>{
+
+let option=document.createElement("option");
+
+option.value=s.adm;
+option.textContent=
+s.adm+" - "+s.name+" ("+s.grade+")";
+
+select.appendChild(option);
+
+});
+
+}
+
+
+/* RESULTS */
+
+function saveResult(){
+
+let adm=document.getElementById("resultStudent").value;
+
+let subject=
+document.getElementById("resultSubject").value;
+
+let mark=
+Number(document.getElementById("mark").value);
+
+if(!adm || !subject || isNaN(mark) ||
+mark<0 || mark>100){
+
+alert("Enter a valid mark from 0 to 100.");
+return;
+
+}
+
+let student=students.find(s=>s.adm===adm);
+
+results.push({
+
+adm,
+name:student.name,
+grade:student.grade,
+subject,
+mark,
+teacher:currentUser.username,
+status:"Saved"
+
+});
+
+localStorage.setItem(
+"shammah_results",
+JSON.stringify(results)
+);
+
+document.getElementById("resultMessage").innerHTML=
+'<div class="message">Result saved successfully.</div>';
+
+document.getElementById("mark").value="";
+
+loadResults();
+
+}
+
+
+/* GRADING */
+
+function getGrade(mark){
+
+if(mark>=80) return "EE";
+if(mark>=50) return "ME";
+if(mark>=30) return "AE";
+return "BE";
+
+}
+
+
+/* LOAD RESULTS */
+
+function loadResults(){
+
+let table=document.getElementById("resultsTable");
+
+table.innerHTML="";
+
+results.forEach((r,index)=>{
+
+let row=document.createElement("tr");
+
+row.innerHTML=`
+
+<td>${r.name}</td>
+<td>${r.subject}</td>
+<td>${r.mark}</td>
+<td>${getGrade(r.mark)}</td>
+<td>${r.status}</td>
+
+`;
+
+table.appendChild(row);
+
+});
+
+document.getElementById("resultCount").innerText=
+results.length;
+
+}
+
+
+/* REPORT */
+
+function generateReport(){
+
+if(results.length===0){
+
+document.getElementById("reportArea").innerHTML=
+"<p>No results available.</p>";
+
+return;
+
+}
+
+let total=0;
+
+results.forEach(r=>total+=Number(r.mark));
+
+let mean=(total/results.length).toFixed(2);
+
+let highest=
+Math.max(...results.map(r=>Number(r.mark)));
+
+let lowest=
+Math.min(...results.map(r=>Number(r.mark)));
+
+document.getElementById("reportArea").innerHTML=`
+
+<div class="message">
+
+<p><b>Total results:</b> ${results.length}</p>
+
+<p><b>General mean:</b> ${mean}</p>
+
+<p><b>Highest mark:</b> ${highest}</p>
+
+<p><b>Lowest mark:</b> ${lowest}</p>
+
+</div>
+
+<button onclick="window.print()">Print Report</button>
+
+`;
+
+}
+
+
+/* SETTINGS */
+
+function saveSettings(){
+
+let year=document.getElementById("year").value;
+let term=document.getElementById("term").value;
+
+localStorage.setItem(
+"shammah_year",year
+);
+
+localStorage.setItem(
+"shammah_term",term
+);
+
+document.getElementById("settingsMessage").innerHTML=
+'<div class="message">Academic settings saved.</div>';
+
+}
+
+
+/* LOAD EVERYTHING */
+
+function loadAll(){
+
+loadStudents();
+loadResults();
+
+document.getElementById("studentCount").innerText=
+students.length;
+
+let year=localStorage.getItem("shammah_year");
+
+let term=localStorage.getItem("shammah_term");
+
+if(year)
+document.getElementById("year").value=year;
+
+if(term)
+document.getElementById("term").value=term;
+
+}
+
+
+/* START */
+
+</script>
+
+</body>
+</html>
+
+Important
+
+This code is the first part. It currently saves data in the browser, so it is not yet the shared online system you requested.
+
+For your actual setup, the next part must replace the browser storage with a central online database + secure teacher accounts. That is what will allow:
+
+Teacher Kim's phone → online database ← Teacher Keziah's phone ← Teacher Collins' phone → Director's computer/phone
+
+So don't stop at this code and don't enter real student information yet. Once you've created index.html, tell me “done”, and I'll give you the next exact code/setup for the online database and teacher accounts.
